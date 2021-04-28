@@ -1,4 +1,4 @@
-#Primer programa en pygam
+# Primer programa en pygam
 
 crearem
 
