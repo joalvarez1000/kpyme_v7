@@ -19,15 +19,21 @@ x = ANCHO //2
 y = ALTO //2
 
 #Velocidades de la bola 
-vx = -5
-vy = -5
+vx = -7
+vy = -7
 #crear pantalla
 pg.init()
 pantalla = pg.display.set_mode((ANCHO,ALTO))
 
+#fps de la bola
+reloj = pg.time.Clock()
+
 game_over = False
 
 while not game_over:
+    #inicializar el fps de la bola 
+    reloj.tick (60)
+
     #gestion de eventos
     for evento in pg.event.get():
         if evento.type == pg.QUIT:
@@ -39,15 +45,20 @@ while not game_over:
 
     #bola choca con las paredes
 
-    if y == 0:
-        vy = 5
-    elif y == ALTO:
-        vy = -5
+        #refactorizacion del codigo
+        #if y >= 0:
+        #    vy = -vy
+        #elif y <= ALTO:
+        #    vy = -vy
+    if y <= 0 or y >= ALTO:
+        vy = -vy
 
-    if x == 0:
-        vx = 5
-    elif x == ANCHO:
-        vx = -5 
+        #if x <= 0:
+        #    vx = -vx
+        #elif x >= ANCHO:
+        #    vx = -vx
+    if x <= 0 or x >= ANCHO:
+        vx = -vx
 
     #Gestion de la pantalla
     pantalla.fill(NEGRO)
