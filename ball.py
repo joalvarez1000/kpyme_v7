@@ -1,73 +1,65 @@
 import pygame as pg
 import sys
+from random import randint
 
-#color de la bola 
-ROJO  = (255, 0, 0)
-AZUL  = (0, 0, 255)
+def rebotaX(x):
+    if x <=0 or x >=ANCHO:
+        return -1
+    return 1
+def rebotaY(y):
+    if y <=0 or y >=ALTO:
+        return -1
+    return 1
+
+#color bola
+ROJO = (255, 0, 0)
+AZUL = (0, 0, 255)
 VERDE = (0, 255, 0)
 
-#tamaño de la pantalla
+#color pantalla
+NEGRO = (0, 0, 0)
 
+#tamaño pantalla
 ANCHO = 800
 ALTO = 600
 
-#Color de la pantalla
-NEGRO = (0,0,0)
 
-#Coordenadas para la bola
-x = ANCHO //2
-y = ALTO //2
+pg.init()#iniciar pantalla
+pantalla = pg.display.set_mode((ANCHO, ALTO))
+reloj = pg.time.Clock() #tiempo de desplazamiento
 
-#Velocidades de la bola 
-vx = -7
-vy = -7
-#crear pantalla
-pg.init()
-pantalla = pg.display.set_mode((ANCHO,ALTO))
-
-#fps de la bola
-reloj = pg.time.Clock()
-
+class Bola():
+    def __init__(self, x, y, vx, vy, color): #Todas las clases de inicia con __init__ y se coloca self
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+        self.color = color
+bolas = []
+for _ in range(10):
+    bola = Bola(randint(0, ANCHO),
+                randint(0, ALTO),
+                randint(5, 10),
+                randint(5, 10),
+                (randint(0, 255), randint(0,255), randint(0,255)))
+    bolas.append(bola)
 game_over = False
-
 while not game_over:
-    #inicializar el fps de la bola 
-    reloj.tick (60)
-
-    #gestion de eventos
+    v = reloj.tick(60)
+    #Gestion de eventos
     for evento in pg.event.get():
         if evento.type == pg.QUIT:
             game_over = True
-
-    #Modificacion de estado
-    x += vx
-    y += vy
-
-    #bola choca con las paredes
-
-        #refactorizacion del codigo
-        #if y >= 0:
-        #    vy = -vy
-        #elif y <= ALTO:
-        #    vy = -vy
-    if y <= 0 or y >= ALTO:
-        vy = -vy
-
-        #if x <= 0:
-        #    vx = -vx
-        #elif x >= ANCHO:
-        #    vx = -vx
-    if x <= 0 or x >= ANCHO:
-        vx = -vx
-
-    #Gestion de la pantalla
+    # Modificación de estado
+    for bola in bolas:
+        bola.x += bola.vx
+        bola.y += bola.vy
+        bola.vy *= rebotaY(bola.y)
+        bola.vx *= rebotaX(bola.x)
+    # Gestión de la pantalla
     pantalla.fill(NEGRO)
-    #dibujar la bola (lasuperficie, colordelabola ,elcentro.lamitad.de.lapantalla, radiobola)
-    pg.draw.circle(pantalla, ROJO,  (x, y), 10)
-    
-       
-    #refrescar pantalla
+    for bola in bolas:
+        pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), 10)
     pg.display.flip()
-
 pg.quit()
 sys.exit()
