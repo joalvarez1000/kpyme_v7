@@ -1,6 +1,6 @@
 import pygame as pg
 import sys
-from random import randint
+from random import randint, choice
 
 def rebotaX(x):
     if x <=0 or x >=ANCHO:
@@ -36,16 +36,16 @@ class Bola():
         self.vy = vy
         self.color = color
 bolas = []
-for _ in range(10):
-    bola = Bola(randint(0, ANCHO),
+for _ in range(10): #iteras 10 veces, para hacer 10 bolas
+    bola = Bola(randint(0, ANCHO), #ocupas la instancia de bola()
                 randint(0, ALTO),
-                randint(5, 10),
-                randint(5, 10),
+                randint(5, 10)* choice([1, -1]),
+                randint(5, 10)* choice([1, -1]),
                 (randint(0, 255), randint(0,255), randint(0,255)))
-    bolas.append(bola)
+    bolas.append(bola) #Se agrega el resultado de la iteración
 game_over = False
 while not game_over:
-    v = reloj.tick(60)
+    v = reloj.tick(3)
     #Gestion de eventos
     for evento in pg.event.get():
         if evento.type == pg.QUIT:
