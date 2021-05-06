@@ -6,11 +6,13 @@ ROJO = (255, 0, 0)
 AZUL = (0, 0, 255)
 VERDE = (0, 255, 0)
 NEGRO = (0, 0, 0)
+BLANCO = (255,255,255)
 ANCHO = 800
 ALTO = 600
 pg.init()
 pantalla = pg.display.set_mode((ANCHO, ALTO))
 reloj = pg.time.Clock()
+
 
 class Bola():
     
@@ -33,6 +35,8 @@ class Bola():
         if self.y >=ALTO:
             self.x = ANCHO //2
             self.y = ALTO //2
+            self.vx = randint (5, 10)*choice([-1, 1])
+            self.vy = randint (5, 10)*choice([-1, 1])
             pg.time.delay(1000)
             return True
         return False
@@ -84,9 +88,13 @@ bola = Bola(randint(0, ANCHO), # solo dejamos  una bola
     
 raqueta = Raqueta()
 
+fuente = pg.font.SysFont ("Arial", 35)
+pierdebola =False
 game_over = False
 while not game_over and vidas > 0:
     v = reloj.tick(60)
+    if pierdebola:
+        pg.time.delay(500)
     #Gestion de eventos
     for evento in pg.event.get():
         if evento.type == pg.QUIT:
@@ -99,17 +107,32 @@ while not game_over and vidas > 0:
         #        raqueta.x += raqueta.vx
     
     # Modificación de estado
+    raqueta.actualizar()
     pierdebola = bola.actualizar() #solo actualizamos una bola
+    pantalla.fill(NEGRO) #limpio la pantalla
     if pierdebola:
         vidas -= 1
-    raqueta.actualizar() # se actualiza la raqueta
-    bola.comprueba_colision(raqueta) #comprueba el choque
+        #resetear la bola
+        if vidas == 0:
+            texto = fuente.render("GAME_OVER", True, (0, 255, 255)) #renderizo el texto
+            pantalla.blit(texto, (400, 300)) # lo guardo en memoria
+        else:
+            bola.x =400
+            bola.y =300
+            bola.dibujar(pantalla)
+            raqueta.dibujar(pantalla)
+    else:
+        bola.comprueba_colision(raqueta)
 
-    # Gestión de la pantalla
-    pantalla.fill(NEGRO)
-    bola.dibujar(pantalla) #dibujamo con la instancia creada en la clase bola()
-    raqueta.dibujar (pantalla)
+
+        # Gestión de la pantalla
+        
+        bola.dibujar(pantalla) #dibujamo con la instancia creada en la clase bola()
+        raqueta.dibujar (pantalla)
         #pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), 10)
-    pg.display.flip()
+    pg.display.flip()#refresca la pantalla
+   
+        
+pg.time.delay(1000)
 pg.quit()
 sys.exit()
