@@ -56,6 +56,8 @@ class Bola():
         
         if choqueX and choqueY:
             self.vy *= -1
+            return True
+        return False
 
 class Raqueta(): # vamos a acrear una raqueta
     def __init__ (self, x=0, y=0):
@@ -79,7 +81,7 @@ class Raqueta(): # vamos a acrear una raqueta
             self.x += self.vx
 
 vidas = 3    
-
+puntuacion  = 0
 bola = Bola(randint(0, ANCHO), # solo dejamos  una bola 
             randint(0, ALTO),
             randint(5, 10)*choice([-1, 1]),
@@ -88,7 +90,8 @@ bola = Bola(randint(0, ANCHO), # solo dejamos  una bola
     
 raqueta = Raqueta()
 
-fuente = pg.font.SysFont ("Arial", 35)
+txtGameOver = pg.font.SysFont ("Arial", 35)
+txtPuntuacion = pg.font.SysFont ("Courrier", 28)
 pierdebola =False
 game_over = False
 while not game_over and vidas > 0:
@@ -100,12 +103,7 @@ while not game_over and vidas > 0:
         if evento.type == pg.QUIT:
             game_over = True
         
-        #if evento.type == pg.KEYDOWN: #solo funciona cuando se pulsa una vez
-        #    if evento.key == pg.K_LEFT:
-        #        raqueta.x -= raqueta.vx
-        #    if evento.key == pg.K_RIGHT:
-        #        raqueta.x += raqueta.vx
-    
+            
     # Modificación de estado
     raqueta.actualizar()
     pierdebola = bola.actualizar() #solo actualizamos una bola
@@ -114,7 +112,7 @@ while not game_over and vidas > 0:
         vidas -= 1
         #resetear la bola
         if vidas == 0:
-            texto = fuente.render("GAME_OVER", True, (0, 255, 255)) #renderizo el texto
+            texto = txtGameOver.render("GAME_OVER", True, (0, 255, 255)) #renderizo el texto
             pantalla.blit(texto, (400, 300)) # lo guardo en memoria
         else:
             bola.x =400
@@ -122,11 +120,13 @@ while not game_over and vidas > 0:
             bola.dibujar(pantalla)
             raqueta.dibujar(pantalla)
     else:
-        bola.comprueba_colision(raqueta)
+        if bola.comprueba_colision(raqueta):
+            puntuacion +=5
 
 
         # Gestión de la pantalla
-        
+        texto = txtPuntuacion.render (str(puntuacion), True, (255,255,0))
+        pantalla.blit(texto, (20, 20))
         bola.dibujar(pantalla) #dibujamo con la instancia creada en la clase bola()
         raqueta.dibujar (pantalla)
         #pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), 10)
