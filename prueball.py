@@ -19,12 +19,23 @@ class Marcador (pg.sprite.Sprite):
         self.image = self.fuente.render (str(self.text), True, self.color)
     
 class Raqueta (pg.sprite.Sprite):
-    def __init__(self, x, y, w=100, h=30):
+    disfraces = ['electric00.png','electric01.png','electric02.png']
+
+
+    def __init__(self, x, y):
         super().__init__()
-        self.image = pg.Surface ((w,h), pg.SRCALPHA, 32) # constante srcalpha ... para que sea transparente
-        pg.draw.rect (self.image, (255,0,0), pg.Rect (0,0,w,h), border_radius=5)
+        self.imagenes = self.cargaImagenes()
+        self.imagen_actual = 0
+        self.image = self.imagenes[self.imagen_actual]
+
         self.rect= self.image.get_rect(centerx = x, bottom = y)
         self.vx = 7
+    
+    def cargaImagenes (self):
+        imagenes = []
+        for fichero in self.disfraces:
+            imagenes.append(pg.image.load("./images/{}".format(fichero)))
+        return imagenes
     
     def update (self):
         teclas_pulsadas = pg.key.get_pressed()
@@ -36,8 +47,14 @@ class Raqueta (pg.sprite.Sprite):
 
         if self.rect.left <= 0:
             self.rect.left = 0
-        if self.rect.right >= ANCHO:
+        if self.rect.right >= ANCHO: #gestion de teclas
             self.rect.right = ANCHO
+
+        self.imagen_actual += 1
+        if self.imagen_actual >= len(self.disfraces):
+            self.imagen_actual = 0
+        self.image = self.imagenes [self.imagen_actual]
+        
 
 class Bola(pg.sprite.Sprite):
     def __init__(self, x, y):
