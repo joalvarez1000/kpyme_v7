@@ -6,15 +6,38 @@ ANCHO = 800
 ALTO = 600
 FPS = 60
 
-class Marcador ():
+class Marcador (pg.sprite.Sprite):
     def __init__ (self, x, y, fontsize = 25, color = (255,255,255),):
+        super().__init__() #los sprite tiene que tener 2 cosas image y rect (surface)
         self.fuente = pg.font.SysFont("Arial", fontsize)
-        self.x = x
-        self.y = y
+        self.text = 0
         self.color = color
-    def dibuja (self, text, lienzo):
-        image = self.fuente.render(str (text), True, self.color)
-        lienzo.blit (image, (self.x, self.y))
+        self.image = self.fuente.render (str (self.text), True, self.color)
+        self.rect = self.image.get_rect (topleft =(x,y))
+    
+    def update(self): #revisar en la biblio como funciona update()
+        self.image = self.fuente.render (str(self.text), True, self.color)
+    
+class Raqueta (pg.sprite.Sprite):
+    def __init__(self, x, y, w=100, h=30):
+        super().__init__()
+        self.image = pg.Surface ((w,h), pg.SRCALPHA, 32) # constante srcalpha ... para que sea transparente
+        pg.draw.rect (self.image, (255,0,0), pg.Rect (0,0,w,h), border_radius=5)
+        self.rect= self.image.get_rect(centerx = x, bottom = y)
+        self.vx = 7
+    
+    def update (self):
+        teclas_pulsadas = pg.key.get_pressed()
+        if teclas_pulsadas [pg.K_LEFT]:
+            self.rect.x -= self.vx
+
+        if teclas_pulsadas[pg.K_RIGHT]:
+            self.rect.x += self.vx
+
+        if self.rect.left <= 0:
+            self.rect.left = 0
+        if self.rect.right >= ANCHO:
+            self.rect.right = ANCHO
 
 class Bola(pg.sprite.Sprite):
     def __init__(self, x, y):
@@ -39,19 +62,29 @@ class Game():
     def __init__(self):
         self.pantalla = pg.display.set_mode ((ANCHO, ALTO)) #creamos la pantalla
         self.botes = 0 # puntuacion
-        self.cuentaGolpes = Marcador (10,10)
+        self.todoGrupo = pg.sprite.Group()
+        self.cuentaSegundos = Marcador (10,10)
+        self.todoGrupo.add(self.cuentaSegundos)    
+        
+       
+        self.bola = Bola (random.randint(0, ANCHO), random.randint(0,ALTO))
+        self.todoGrupo.add(self.bola)# inicializamos la bola de la Class Bola con el grupo
 
-        self.ballGroup = pg.sprite.Group()
-        for i in range(random.randint(1,20)):
-            bola = Bola (random.randint(0, ANCHO), random.randint(0,ALTO))
-            self.ballGroup.add(bola)# inicializamos la bola de la Class Bola con el grupo
-
+        self.raqueta = Raqueta (x= ANCHO//2, y = ALTO - 40)
+        self.todoGrupo.add(self.raqueta)
            
     def bucle_principal (self):
         game_over = False
         reloj = pg.time.Clock()
+        contador_milisegundos = 0
+        segundero = 0
         while not game_over:
-            reloj.tick(FPS)
+            dt = reloj.tick(FPS)
+            contador_milisegundos += dt
+
+            if contador_milisegundos >= 1000:
+                segundero += 1
+                contador_milisegundos = 0
 
             #GESTION DE EVENTOS
 
@@ -59,11 +92,12 @@ class Game():
                 if evento.type == pg.QUIT:
                     game_over = True
             
-            self.ballGroup.update()
+            self.cuentaSegundos.tex = segundero
+            self.todoGrupo.update()
             
             self.pantalla.fill((0,0,0))
-            self.cuentaGolpes.dibuja("Hola", self.pantalla)
-            self.ballGroup.draw(self.pantalla)
+            
+            self.todoGrupo.draw(self.pantalla)
 
             pg.display.flip()
 
